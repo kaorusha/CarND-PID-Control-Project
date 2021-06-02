@@ -1,5 +1,6 @@
 #ifndef PID_H
 #define PID_H
+#include <vector>
 
 class PID {
  public:
@@ -30,6 +31,16 @@ class PID {
    * @output The total PID error
    */
   double TotalError();
+  /**
+   * @brief overloading error calculation with given PID for Twiddle()
+   *
+   * @param p
+   * @param i
+   * @param d
+   * @return double error
+   */
+  double TotalError(double p, double i, double d);
+  void Twiddle(int& i);
 
  private:
   /**
@@ -41,10 +52,21 @@ class PID {
 
   /**
    * PID Coefficients
-   */ 
+   */
   double Kp;
   double Ki;
   double Kd;
+  // twiddle coefficients
+  std::vector<double> dp;
+  std::vector<double> p;
+  bool is_init = false; // flag for initializing best_err
+  double best_err;
+  double rss;  // residual sum square
+  int loop;
+  int index;
+  bool new_run;  // update next PID parameter
+  bool fall_back;
+  int it;
 };
 
 #endif  // PID_H
