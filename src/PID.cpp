@@ -24,7 +24,7 @@ void PID::Init(double Kp_, double Ki_, double Kd_) {
   std::cout << "Update PID: " << Kp << ", " << Ki << ", " << Kd << std::endl;
 }
 
-void PID::UpdateError(double cte) {
+void PID::UpdateError(double cte, bool enable_twiddle) {
   /**
    * TODO: Update PID errors based on cte.
    */
@@ -32,9 +32,11 @@ void PID::UpdateError(double cte) {
   d_error = cte - p_error;
   p_error = cte;
   // update twiddle error
-  rss += cte * cte;
-  loop += 1;
-  if (loop > 4) Twiddle(index);
+  if (enable_twiddle) {
+    rss += cte * cte;
+    loop += 1;
+    if (loop > 9) Twiddle(index);
+  }
 }
 
 double PID::TotalError() {
@@ -50,7 +52,7 @@ void PID::Twiddle(int& i) {
   if (!is_init) {
     best_err = rss / loop;
     p = {Kp, Ki, Kd};
-    dp = {Kp/10, Ki/10, Kd/10};
+    dp = {Kp/2, Ki/2, Kd/2};
     index = 0;
     new_run = true;
     fall_back = false;
@@ -64,6 +66,7 @@ void PID::Twiddle(int& i) {
     std::cout << "Iteration " << it << ", best error = " << best_err
               << std::endl;
   }
+  // modify next parameter
   if (new_run) {
     p[i] += dp[i];
     new_run = false;
@@ -97,4 +100,9 @@ void PID::Twiddle(int& i) {
     new_run = true;
     fall_back = false;
   }
+}
+
+void PID::clipping(double& input, double lower_limit, double upper_limit) {
+  if (input < lower_limit) input = lower_limit;
+  if (input > upper_limit) input = upper_limit;
 }

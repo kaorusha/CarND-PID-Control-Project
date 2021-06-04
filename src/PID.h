@@ -24,7 +24,7 @@ class PID {
    * Update the PID error variables given cross track error.
    * @param cte The current cross track error
    */
-  void UpdateError(double cte);
+  void UpdateError(double cte, bool enable_twiddle = false);
 
   /**
    * Calculate the total PID error.
@@ -41,6 +41,7 @@ class PID {
    */
   double TotalError(double p, double i, double d);
   void Twiddle(int& i);
+  void clipping(double& input, double lower_limit, double upper_limit);
 
  private:
   /**
