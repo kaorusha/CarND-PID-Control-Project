@@ -29,19 +29,22 @@ The error is heavily affected by vehicle speed. When using the constant 0.3 thro
 #### throttle
 The throttle was set to constant 0.3 and resulting speed was around 30 MPH. 50 MPH was chosen as target speed. In order to decelerate when turning, the target speed is multiplied with `cos(θ)`, theta is the vehicle turning angle(`main.cpp` line# 80). Because the throttle is between `[0, 1]`, the PID gain should be small to make the output in the same range as the throttle is, or the value will be clipped, and the car may be accelerating in full throttle all the time. The `d` gain controls the vehicle accelerating bias, which is indispensable or there will be steady state error with target speed. Using 10% of original value, `p = 0.02, i = 0.0004, d = 0.3`, the speed is able to maintain around target speed 50 MPH.
 ### the effect of the P, I, D component
-P value controls the proportion of instantaneous  cross track error (CTE) to correct on the next loop.
+#### P value
+Controls the proportion of instantaneous  cross track error (CTE) to correct on the next loop.
 The larger P cause the overshoot larger and the vehicle will likely to oscillate with zigzag movement.
 ![p value vs cte over time](p.png)
 When P gain is too small, the steering angle changes too slow, so the vehicle can not make a sharp turn. We can gently increase P gain until the vehicle start to oscillate in a nearly constant amplitude but still stay in the lane.
 
-D value controls the derivative of CTE contributes to the output. When the CTE becoming smaller, meaning a negative derivation, D part will add opposite positive to CTE, and that makes the output change slower. Given a fixed P value, larger D creates slower stabling time.
+#### D value
+Controls the derivative of CTE contributes to the output. When the CTE becoming smaller, meaning a negative derivation, D part will add opposite positive to CTE, and that makes the output change slower. Given a fixed P value, larger D creates slower stabling time.
 ![d value vs cte over time](d.png)
 When D is too large, the derivate of CTE dominate the output and will cause the output oscillate between upper and lower limit rapidly and that makes the vehicle moving vary slow.
 
-I value controls the integration of the CTE to eliminate the steady-state error caused by system bias. Summing up all past CTE significantly affect the output even with small changing I value, and may cause oscillation.
+#### I value
+Controls the integration of the CTE to eliminate the steady-state error caused by system bias. Summing up all past CTE significantly affect the output even with small changing I value, and may cause oscillation.
 ![i value vs cte over time](i.png)  
 
-### fine tune PID with twiddle
+### Fine tune PID with twiddle
 Using [twiddle](https://classroom.udacity.com/nanodegrees/nd013/parts/b9040951-b43f-4dd3-8b16-76e7b52f4d9d/modules/85ece059-1351-4599-bb2c-0095d6534c8c/lessons/48c5e9c4-f72b-4c7c-8375-ea4eda220e39/concepts/34d4a65f-44d9-462f-b246-c2e653a19c1d) algorithm for parameter optimization, in which twiddle is used for offline tuning with a bicycle model for motion prediction, and it uses `distance` instead of `velocity` by assuming `delta_t` to be 1, and we can reuse that to tune by adjusting the speed:
 ```py
 def run(robot, params, n=100, speed=100): #speed = 100 MPH
@@ -75,7 +78,7 @@ if (fabs(yaw_rate) > 0.0001) {
     }
 ```
 The simulator gives the input `steer_angle` and `velocity`, but lock of `vehicle_length`, and `delta_t`. One way is to record `delta_t` with assuming `vehicle_length`, record the errors. The offline twiddle uses `gaussian noise` to simulate the `steering_noise` and `distance_noise`, but the noise distribution might be different from simulator so the result may be too idealistic. And the calculating capability also limits the number of iteration.
-
-Another is to use online twiddle. After choosing a initial parameter(from offline twiddle), record error after a number of `loop` and determine the next run. For fast iterating the parameter, `loop` should not be too much. But less sample cause the error estimation unreliable. It's a dilemma.(10 `loop` was chosen in `PID.cpp` line# 10)
+#### online twiddle
+Another way is to use online twiddle.(`PID.cpp` line# 50 to 103) After choosing a initial parameter(from offline twiddle), record error after a number of `loop` and determine the next run. For fast iterating the parameter, `loop` should not be too much. But less sample cause the error estimation unreliable. It's a dilemma.(10 `loop` was chosen in `PID.cpp` line# 10)
 
 In another hand, The fast the speed is, the small the increment value, `dp`, should be chosen, enable to keep the motion stable. But which also limit the range of searching. (50% of initial parameter was chosen in `PID.cpp` line# 55)
