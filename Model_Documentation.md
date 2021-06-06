@@ -4,6 +4,7 @@ The pid control model is described in detail in this document. The steps also co
 Fine tune the P, I, D component of the PID algorithm to steer the vehicle safely while as fast as possible.
 
 ---
+![result](Peek_2021-06-04_17-59.gif)
 ### PID procedure
 Manually tune the parameters until the vehicle stable, meaning it dose not oscillate in a growing magnitude and eventually run out of the lane, and then start fine tune the steering controller using twiddle. For the throttle controller, the PID parameter is fixed without twiddling.
 
