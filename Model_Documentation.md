@@ -6,10 +6,10 @@ Fine tune the P, I, D component of the PID algorithm to steer the vehicle safely
 ---
 ![result](Peek_2021-06-04_17-59.gif)
 ### PID procedure
-Manually tune the parameters until the vehicle stable, meaning it dose not oscillate in a growing magnitude and eventually run out of the lane, and then start fine tune the steering controller using twiddle. For the throttle controller, the PID parameter is fixed without twiddling.
+Manually tune the parameters until the vehicle stable, meaning it does not oscillate in a growing magnitude and eventually run out of the lane, and then start fine tune the steering controller using twiddle. For the throttle controller, the PID parameter is fixed without twiddling.
 
 #### PID Hyperparameter: 
-* `kp` proportion gain
+* `kp` proportional gain
 * `ki` integration gain
 * `kd` derivative gain
 * `target speed` from 30 to 100 MPH (set 50 MPH)
@@ -39,7 +39,7 @@ When P gain is too small, the steering angle changes too slow, so the vehicle ca
 #### D value
 Controls the derivative of CTE contributes to the output. When the CTE becoming smaller, meaning a negative derivation, D part will add opposite positive to CTE, and that makes the output change slower. Given a fixed P value, larger D creates slower stabling time.
 ![d value vs cte over time](d.png)
-When D is too large, the derivate of CTE dominate the output and will cause the output oscillate between upper and lower limit rapidly and that makes the vehicle moving vary slow.
+When D is too large, the derivation of CTE dominate the output and will cause the output oscillate between upper and lower limit rapidly and that makes the vehicle moving very slow.
 
 #### I value
 Controls the integration of the CTE to eliminate the steady-state error caused by system bias. Summing up all past CTE significantly affect the output even with small changing I value, and may cause oscillation.
